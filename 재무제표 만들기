@@ -6,8 +6,8 @@ class Stocks:
     def __init__(self, code) :
         self.code = code
         
-    def get_code(self, code):
-        self.code =code
+    def get_code(self):
+        code = self.code
     
     
     
@@ -85,43 +85,25 @@ class MyApp(QWidget):
 
     def initUI(self):
         
-        list = []
-        def addBtnClicked(self) :
-            code = stockLine.text()
-            stock = Stocks(code)
-            stock_dict = {
-            '종목 코드' : stock.get_code() ,
-            '시가총액' : stock.get_market_sum() ,
-            '매출액' : stock.get_sales_revenue() ,
-            '영업이익' : stock.get_oi() , 
-            '당기순이익' : stock.get_ni() ,
-            'bps' : stock.get_bps() , 
-            'eps' : stock.get_eps() , 
-            '배당금' : stock.get_dividend(code)
-            }
-            list = stock_dict.keys()
-            a = ''
-            for x in list :
-                a += str(x) + ' '
-            stockList.append(a)
+    
         
-        stockLabel = QLabel('종목 코드번호 입력')
-        stockLine = QLineEdit()
-        stockLine.setMaxLength(6)
+        self.stockLabel = QLabel('종목 코드번호 입력')
+        self.stockLine = QLineEdit()
+        self.stockLine.setMaxLength(6)
         
-        stockButton = QPushButton('추가')
-        stockList = QTextEdit()
-        statusLabel = QLabel('종목 목록 :')
+        self.stockButton = QPushButton('추가')
+        self.stockList = QTextEdit()
+        self.statusLabel = QLabel('종목 목록 :')
 
         hbox1 = QHBoxLayout()
-        hbox1.addWidget(stockLabel)
-        hbox1.addWidget(stockLine)
-        hbox1.addWidget(stockButton)
+        hbox1.addWidget(self.stockLabel)
+        hbox1.addWidget(self.stockLine)
+        hbox1.addWidget(self.stockButton)
 
         hbox2 = QHBoxLayout()
-        hbox2.addWidget(statusLabel)
+        hbox2.addWidget(self.statusLabel)
         hbox3 = QHBoxLayout()
-        hbox3.addWidget(stockList)
+        hbox3.addWidget(self.stockList)
         vbox = QVBoxLayout()
         vbox.addLayout(hbox1)
         vbox.addLayout(hbox2)
@@ -130,14 +112,35 @@ class MyApp(QWidget):
         self.setLayout(vbox)
         button = self.sender()
         
-        stockButton.clicked.connect(addBtnClicked)
+        self.stockButton.clicked.connect(self.addBtnClicked)
             
 
         self.setWindowTitle('재무제표 가져오기!')
         self.setGeometry(300, 300, 600, 400)
         self.show()
+    list = []
+
+    def addBtnClicked(self) :
+        code = self.stockLine.text()
+        stock = Stocks(code)
+        stock_dict = {
+        '종목 코드' : stock.get_code() ,
+        '시가총액' : stock.get_market_sum() ,
+        '매출액' : stock.get_sales_revenue() ,
+        '영업이익' : stock.get_oi() , 
+        '당기순이익' : stock.get_ni() ,
+        'bps' : stock.get_bps() , 
+        'eps' : stock.get_eps() , 
+        '배당금' : stock.get_dividend()
+        }
+        list = stock_dict.keys()
+        a = ''
+        for x in list :
+            a += str(x) + ' '
+        self.stockList.append(a)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = MyApp()
     sys.exit(app.exec_())
+    
