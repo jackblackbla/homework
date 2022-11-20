@@ -8,6 +8,7 @@ class Stocks:
         
     def get_code(self):
         code = self.code
+        return code
     
     
     
@@ -121,6 +122,7 @@ class MyApp(QWidget):
     list = []
 
     def addBtnClicked(self) :
+        f = open("재무제표.txt", 'a')
         code = self.stockLine.text()
         stock = Stocks(code)
         stock_dict = {
@@ -133,14 +135,17 @@ class MyApp(QWidget):
         'eps' : stock.get_eps() , 
         '배당금' : stock.get_dividend()
         }
-        list = stock_dict.keys()
+        list = stock_dict.values()
         a = ''
         for x in list :
-            a += str(x) + ' '
+            a += str(x) + ','
         self.stockList.append(a)
+        f.write('\n' +a)
+        f.close()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = MyApp()
     sys.exit(app.exec_())
     
+
