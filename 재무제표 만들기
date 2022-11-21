@@ -10,6 +10,14 @@ class Stocks:
         code = self.code
         return code
     
+    def get_name(self):#주식 이름
+        url = "http://finance.naver.com/item/main.nhn?code=" + self.code
+        html = requests.get(url).text
+    
+        soup = BeautifulSoup(html, "html5lib")
+        tags = soup.select("#middle > div.h_company > div.wrap_company > h2 > a")
+        tag = tags[0]
+        return tag.text
     
     
     def get_market_sum(self):#시가총액
@@ -93,39 +101,47 @@ class MyApp(QWidget):
         self.stockLine.setMaxLength(6)
         
         self.stockButton = QPushButton('추가')
-        self.stockList = QTextEdit()
+        self.stockButton2 = QPushButton('조회')
+        self.stockButton3 = QPushButton('제거')
+        self.stockList1 = QTextEdit('추가할 종목')
+        self.stockList2 = QTextEdit('추가된 종목')
         self.statusLabel = QLabel('종목 목록 :')
 
         hbox1 = QHBoxLayout()
         hbox1.addWidget(self.stockLabel)
         hbox1.addWidget(self.stockLine)
         hbox1.addWidget(self.stockButton)
+        hbox1.addWidget(self.stockButton3)
 
         hbox2 = QHBoxLayout()
         hbox2.addWidget(self.statusLabel)
+        hbox2.addWidget(self.stockButton2)
         hbox3 = QHBoxLayout()
-        hbox3.addWidget(self.stockList)
+        hbox3.addWidget(self.stockList1)
+        hbox3.addWidget(self.stockList2)
         vbox = QVBoxLayout()
         vbox.addLayout(hbox1)
         vbox.addLayout(hbox2)
         vbox.addLayout(hbox3)
 
         self.setLayout(vbox)
-        button = self.sender()
+        
         
         self.stockButton.clicked.connect(self.addBtnClicked)
+        self.stockButton2.clicked.connect(self.inqBtnClicked)
+        self.stockButton3.clicked.connect(self.delBtnClicked)
             
 
         self.setWindowTitle('재무제표 가져오기!')
-        self.setGeometry(300, 300, 600, 400)
+        self.setGeometry(300, 300, 1200, 900)
         self.show()
-    list = []
 
     def addBtnClicked(self) :
         f = open("재무제표.txt", 'a')
         code = self.stockLine.text()
         stock = Stocks(code)
         stock_dict = {
+        '종목 이름' : stock.get_name() ,
         '종목 코드' : stock.get_code() ,
         '시가총액' : stock.get_market_sum() ,
         '매출액' : stock.get_sales_revenue() ,
@@ -139,13 +155,36 @@ class MyApp(QWidget):
         a = ''
         for x in list :
             a += str(x) + ','
-        self.stockList.append(a)
-        f.write('\n' +a)
+        self.stockList1.append(stock_dict['종목 이름'] + ' ' + stock_dict['종목 코드'])
+        f.write('\n' + a)
+        
         f.close()
+        self.stockLine.setText('')
 
+    def inqBtnClicked(self) : 
+        
+        f = open("재무제표.txt", 'r')
+        self.stockList2.setText('')
+        while True:
+            line = f.readline()
+            line_list = line.split(',', 3)
+            
+            if not line: break
+            self.stockList2.append(line)
+        f.close()
+        pass
+
+    def delBtnClicked(self):
+        f = open("재무제표.txt", 'r+')
+        lines = f.readlines()
+        for line in lines :
+            words = line.strip('\n').split(',')
+            for word in words :
+                if word != self.stockLine.text :
+                    f.write(line)
+        
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = MyApp()
     sys.exit(app.exec_())
     
-
