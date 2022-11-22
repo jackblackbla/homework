@@ -27,7 +27,7 @@ class Stocks:
         soup = BeautifulSoup(html, "html5lib")
         tags = soup.select("#_market_sum")
         tag = tags[0]
-        return tag.text.strip().replace('\n' , '').replace('\t', '')
+        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
 
     def get_sales_revenue(self):#매출액
         url = "http://finance.naver.com/item/main.nhn?code=" + self.code
@@ -36,16 +36,16 @@ class Stocks:
         soup = BeautifulSoup(html, "html5lib")
         tags = soup.select("#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(1) > td.last.cell_strong")
         tag = tags[0]
-        return int(tag.text.replace(',',''))
+        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
 
     def get_oi(self):#영업이익
         url = "http://finance.naver.com/item/main.nhn?code=" + self.code
         html = requests.get(url).text
     
         soup = BeautifulSoup(html, "html5lib")
-        tags = soup.select("#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(2) > td.last.cell_strong > em")
+        tags = soup.select("#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(2) > td.last.cell_strong")
         tag = tags[0]
-        return int(tag.text.replace(',',''))
+        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
 
     def get_ni(self):#당기순이익
         url = "http://finance.naver.com/item/main.nhn?code=" + self.code
@@ -54,7 +54,7 @@ class Stocks:
         soup = BeautifulSoup(html, "html5lib")
         tags = soup.select("#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(3) > td.last.cell_strong")
         tag = tags[0]
-        return int(tag.text.replace(',',''))
+        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
 
     def get_bps(self):#bps
         url = "http://finance.naver.com/item/main.nhn?code=" + self.code
@@ -63,7 +63,7 @@ class Stocks:
         soup = BeautifulSoup(html, "html5lib")
         tags = soup.select("#tab_con1 > div:nth-child(5) > table > tbody:nth-child(3) > tr:nth-child(2) > td > em:nth-child(3)")
         tag = tags[0]
-        return int(tag.text.replace(',',''))
+        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
     
     def get_eps(self):#eps
         url = "http://finance.naver.com/item/main.nhn?code=" + self.code
@@ -73,7 +73,7 @@ class Stocks:
         tags = soup.select("#_eps")
         tag = tags[0]
         
-        return int(tag.text.replace(',',''))
+        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
 
     def get_dividend(self):#배당금
         url = "http://finance.naver.com/item/main.nhn?code=" + self.code
@@ -83,7 +83,7 @@ class Stocks:
         tags = soup.select("#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(14) > td.t_line.cell_strong")
         tag = tags[0]
     
-        return int(tag.text.replace(',',''))
+        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
 
 
 class MyApp(QWidget):
@@ -133,7 +133,7 @@ class MyApp(QWidget):
             
 
         self.setWindowTitle('재무제표 가져오기!')
-        self.setGeometry(300, 300, 1200, 900)
+        self.setGeometry(100, 100, 1600, 900)
         self.show()
 
     def addBtnClicked(self) :
@@ -156,7 +156,7 @@ class MyApp(QWidget):
         for x in list :
             a += str(x) + ','
         self.stockList1.append(stock_dict['종목 이름'] + ' ' + stock_dict['종목 코드'])
-        f.write('\n' + a)
+        f.write(a)
         
         f.close()
         self.stockLine.setText('')
@@ -167,7 +167,6 @@ class MyApp(QWidget):
         self.stockList2.setText('')
         while True:
             line = f.readline()
-            line_list = line.split(',', 3)
             
             if not line: break
             self.stockList2.append(line)
