@@ -1,189 +1,54 @@
-import requests
-from bs4 import BeautifulSoup
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout , QLabel, QLineEdit, QTextEdit
-class Stocks:
-    def __init__(self, code) :
-        self.code = code
-        
-    def get_code(self):
-        code = self.code
-        return code
-    
-    def get_name(self):#주식 이름
-        url = "http://finance.naver.com/item/main.nhn?code=" + self.code
-        html = requests.get(url).text
-    
-        soup = BeautifulSoup(html, "html5lib")
-        tags = soup.select("#middle > div.h_company > div.wrap_company > h2 > a")
-        tag = tags[0]
-        return tag.text
-    
-    
-    def get_market_sum(self):#시가총액
-        url = "http://finance.naver.com/item/main.nhn?code=" + self.code
-        html = requests.get(url).text
-    
-        soup = BeautifulSoup(html, "html5lib")
-        tags = soup.select("#_market_sum")
-        tag = tags[0]
-        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
-
-    def get_sales_revenue(self):#매출액
-        url = "http://finance.naver.com/item/main.nhn?code=" + self.code
-        html = requests.get(url).text
-    
-        soup = BeautifulSoup(html, "html5lib")
-        tags = soup.select("#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(1) > td.last.cell_strong")
-        tag = tags[0]
-        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
-
-    def get_oi(self):#영업이익
-        url = "http://finance.naver.com/item/main.nhn?code=" + self.code
-        html = requests.get(url).text
-    
-        soup = BeautifulSoup(html, "html5lib")
-        tags = soup.select("#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(2) > td.last.cell_strong")
-        tag = tags[0]
-        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
-
-    def get_ni(self):#당기순이익
-        url = "http://finance.naver.com/item/main.nhn?code=" + self.code
-        html = requests.get(url).text
-    
-        soup = BeautifulSoup(html, "html5lib")
-        tags = soup.select("#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(3) > td.last.cell_strong")
-        tag = tags[0]
-        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
-
-    def get_bps(self):#bps
-        url = "http://finance.naver.com/item/main.nhn?code=" + self.code
-        html = requests.get(url).text
-    
-        soup = BeautifulSoup(html, "html5lib")
-        tags = soup.select("#tab_con1 > div:nth-child(5) > table > tbody:nth-child(3) > tr:nth-child(2) > td > em:nth-child(3)")
-        tag = tags[0]
-        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
-    
-    def get_eps(self):#eps
-        url = "http://finance.naver.com/item/main.nhn?code=" + self.code
-        html = requests.get(url).text
-    
-        soup = BeautifulSoup(html, "html5lib")
-        tags = soup.select("#_eps")
-        tag = tags[0]
-        
-        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
-
-    def get_dividend(self):#배당금
-        url = "http://finance.naver.com/item/main.nhn?code=" + self.code
-        html = requests.get(url).text
-    
-        soup = BeautifulSoup(html, "html5lib")
-        tags = soup.select("#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(14) > td.t_line.cell_strong")
-        tag = tags[0]
-    
-        return tag.text.strip().replace('\n' , '').replace('\t', '').replace(',' , '')
-
-
-class MyApp(QWidget):
-
+from PyQt5.QtWidgets import *
+import pandas as pd
+import newStocks
+import newStocks
+class MyWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.initUI()
+        self.setupUI()
 
-    def initUI(self):
-        
-    
-        
-        self.stockLabel = QLabel('종목 코드번호 입력')
-        self.stockLine = QLineEdit()
-        self.stockLine.setMaxLength(6)
-        
-        self.stockButton = QPushButton('추가')
-        self.stockButton2 = QPushButton('조회')
-        self.stockButton3 = QPushButton('제거')
-        self.stockList1 = QTextEdit('추가할 종목')
-        self.stockList2 = QTextEdit('추가된 종목')
-        self.statusLabel = QLabel('종목 목록 :')
+    def setupUI(self):
 
+        self.btn1 = QPushButton("파일 열기")
+        self.label = QLabel('File Name')
+        self.progressBar = QProgressBar()
+        self.stockTable = QTableWidget()
+        
         hbox1 = QHBoxLayout()
-        hbox1.addWidget(self.stockLabel)
-        hbox1.addWidget(self.stockLine)
-        hbox1.addWidget(self.stockButton)
-        hbox1.addWidget(self.stockButton3)
-
+        hbox1.addWidget(self.btn1)
+        hbox1.addWidget(self.label)
+        
         hbox2 = QHBoxLayout()
-        hbox2.addWidget(self.statusLabel)
-        hbox2.addWidget(self.stockButton2)
+        hbox2.addWidget(self.progressBar)
+        
         hbox3 = QHBoxLayout()
-        hbox3.addWidget(self.stockList1)
-        hbox3.addWidget(self.stockList2)
+        hbox3.addWidget(self.stockTable)
+        
         vbox = QVBoxLayout()
         vbox.addLayout(hbox1)
         vbox.addLayout(hbox2)
         vbox.addLayout(hbox3)
-
+        
         self.setLayout(vbox)
+        self.btn1.clicked.connect(self.btn_fun_FileLoad)   
         
         
-        self.stockButton.clicked.connect(self.addBtnClicked)
-        self.stockButton2.clicked.connect(self.inqBtnClicked)
-        self.stockButton3.clicked.connect(self.delBtnClicked)
-            
 
-        self.setWindowTitle('재무제표 가져오기!')
-        self.setGeometry(100, 100, 1600, 900)
-        self.show()
-
-    def addBtnClicked(self) :
-        f = open("재무제표.txt", 'a')
-        code = self.stockLine.text()
-        stock = Stocks(code)
-        stock_dict = {
-        '종목 이름' : stock.get_name() ,
-        '종목 코드' : stock.get_code() ,
-        '시가총액' : stock.get_market_sum() ,
-        '매출액' : stock.get_sales_revenue() ,
-        '영업이익' : stock.get_oi() , 
-        '당기순이익' : stock.get_ni() ,
-        'bps' : stock.get_bps() , 
-        'eps' : stock.get_eps() , 
-        '배당금' : stock.get_dividend()
-        }
-        list = stock_dict.values()
-        a = ''
-        for x in list :
-            a += str(x) + ','
-        self.stockList1.append(stock_dict['종목 이름'] + ' ' + stock_dict['종목 코드'])
-        f.write(a)
+    def btn_fun_FileLoad(self):
+        stocks_list = []
+        self.fname=QFileDialog.getOpenFileName()        
+        self.label.setText(self.fname[0])
         
-        f.close()
-        self.stockLine.setText('')
-
-    def inqBtnClicked(self) : 
         
-        f = open("재무제표.txt", 'r')
-        self.stockList2.setText('')
-        while True:
-            line = f.readline()
-            
-            if not line: break
-            self.stockList2.append(line)
-        f.close()
-        pass
-
-    def delBtnClicked(self):
-        f = open("재무제표.txt", 'r+')
-        lines = f.readlines()
-        for line in lines :
-            words = line.strip('\n').split(',')
-            for word in words :
-                if word != self.stockLine.text :
-                    f.write(line)
         
-if __name__ == '__main__':
+        df = pd.read_csv(self.fname[0], encoding='cp949',header=0, names=["종목#","종목명","증(%)","구분","결제잔고","미결제","현재잔고","매입가","현재가","매도손익(천)","손익(천)","수익율","평가금액","신용/대출금","매도가","신용","대출(매수)일","만기일","중분류"])
+
+        for i in range(len(df.index)):
+            stocks_list.append(newStocks(code = str(df.iloc[i, 0]).zfill(6) , name = str(df.iloc[i, 1]) , price = str(df.iloc[i, 8])))
+
+if __name__ == "__main__":
     app = QApplication(sys.argv)
-    ex = MyApp()
-    sys.exit(app.exec_())
-    
+    mywindow = MyWindow()
+    mywindow.show()
+    app.exec_()
