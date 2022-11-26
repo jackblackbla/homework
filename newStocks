@@ -1,0 +1,42 @@
+import requests
+from bs4 import BeautifulSoup
+
+class Stocks:
+    def __init__(self, name = None, code = None, market_sum = None, ly_sales_revenue = None, ly_oi = None, ly_ni = None,  sales_revenue = None, oi = None, ni = None, eps= None, bps= None , price= None , dividend= None):
+        self.name = name
+        self.code = code
+        self.market_sum = market_sum
+        self.ly_sales_revenue = ly_sales_revenue
+        self.ly_oi = ly_oi
+        self.ly_ni = ly_ni
+        self.sales_revenue = sales_revenue
+        self.oi = oi
+        self.ni = ni
+        self.eps = eps
+        self.bps = bps
+        self.price = price
+        self.dividend = dividend
+        
+    def get_stock(self):
+        stock_list = [ self.market_sum , self.ly_sales_revenue , self.ly_oi , self.ly_ni , self.sales_revenue , self.oi , self.ni, self.eps , self.bps, self.dividend]
+        link_list = ["#_market_sum" ,
+             "#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(1) > td:nth-child(7)",
+             "#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(2) > td:nth-child(7)",
+             "#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(3) > td:nth-child(7)",
+             "#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(1) > td.last.cell_strong",
+             "#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(2) > td.last.cell_strong",
+             "#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(3) > td.last.cell_strong",
+             "#_eps",
+             "#tab_con1 > div:nth-child(5) > table > tbody:nth-child(3) > tr:nth-child(2) > td > em:nth-child(3)",
+             "#content > div.section.cop_analysis > div.sub_section > table > tbody > tr:nth-child(14) > td.t_line.cell_strong"
+             ]
+
+        for i in range (10)  :  
+            url = "http://finance.naver.com/item/main.nhn?code=" + self.code
+            html = requests.get(url).text
+                    
+            soup = BeautifulSoup(html, "html5lib")
+            tags = soup.select(link_list[i])
+            tag = tags[0]
+                
+            stock_list[i] = tag.text.strip().replace('\n' , '').replace('\t', '')
