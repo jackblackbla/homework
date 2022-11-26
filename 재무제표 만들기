@@ -1,0 +1,54 @@
+import sys
+from PyQt5.QtWidgets import *
+import pandas as pd
+import newStocks
+import newStocks
+class MyWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setupUI()
+
+    def setupUI(self):
+
+        self.btn1 = QPushButton("파일 열기")
+        self.label = QLabel('File Name')
+        self.progressBar = QProgressBar()
+        self.stockTable = QTableWidget()
+        
+        hbox1 = QHBoxLayout()
+        hbox1.addWidget(self.btn1)
+        hbox1.addWidget(self.label)
+        
+        hbox2 = QHBoxLayout()
+        hbox2.addWidget(self.progressBar)
+        
+        hbox3 = QHBoxLayout()
+        hbox3.addWidget(self.stockTable)
+        
+        vbox = QVBoxLayout()
+        vbox.addLayout(hbox1)
+        vbox.addLayout(hbox2)
+        vbox.addLayout(hbox3)
+        
+        self.setLayout(vbox)
+        self.btn1.clicked.connect(self.btn_fun_FileLoad)   
+        
+        
+
+    def btn_fun_FileLoad(self):
+        stocks_list = []
+        self.fname=QFileDialog.getOpenFileName()        
+        self.label.setText(self.fname[0])
+        
+        
+        
+        df = pd.read_csv(self.fname[0], encoding='cp949',header=0, names=["종목#","종목명","증(%)","구분","결제잔고","미결제","현재잔고","매입가","현재가","매도손익(천)","손익(천)","수익율","평가금액","신용/대출금","매도가","신용","대출(매수)일","만기일","중분류"])
+
+        for i in range(len(df.index)):
+            stocks_list.append(newStocks(code = str(df.iloc[i, 0]).zfill(6) , name = str(df.iloc[i, 1]) , price = str(df.iloc[i, 8])))
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    mywindow = MyWindow()
+    mywindow.show()
+    app.exec_()
