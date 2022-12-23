@@ -1,0 +1,17 @@
+#include <stdio.h>
+void palindrome(int param[],int len) {
+    int i = 0,cnt = 0;
+    for (int i = 0; i < len / 2; i++){
+        if (param[i] != param[len - i -1]) cnt++;
+    }
+    if (cnt == 0) printf("회문입니다");
+    else printf("회문이 아닙니다");
+}
+
+int main(void) {
+    char * str;
+    printf("문자열 입력:");
+    scanf("%s", &str);
+    palindrome(&str, sizeof(str));
+    
+}
